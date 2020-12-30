@@ -4,27 +4,25 @@
 #include <chrono>
 #include <random>
 
+#include "RabbitContestParams.h"
+
 class Rabbit
 {
 public:
-	Rabbit
-	(
-		unsigned int rabbitId
-		, int target
-		, std::mutex& printMtx
-	);
+	Rabbit(std::size_t rabbitId, RabbitContestParams& contestParams);
 	void runRace();
 private:
 	void printMessage(std::string const& msg) const;
 	int getHop();
-	void takeNap();
+	bool takeNap();
 
 private:
+	unsigned int id = 0;
+	RabbitContestParams& contestParams;
+
+	int currentLocation = 0;
+
 	std::mt19937 randomGenerator;
 	std::uniform_int_distribution<> hopRandomizer;
 	std::uniform_int_distribution<> napRandomizer;
-	unsigned int id = 0;
-	int raceTarget;
-	std::mutex& printMutex;
-	int currentLocation = 0;
 };

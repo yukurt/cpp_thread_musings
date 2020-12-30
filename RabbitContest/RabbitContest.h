@@ -4,22 +4,22 @@
 #include <vector>
 #include "Rabbit.h"
 #include <thread>
+#include <condition_variable>
 
 class RabbitContest
 {
 public:
 	RabbitContest
 	(
-		  int target
-		, std::mutex& printMtx
+		  int raceTarget
+		, std::mutex& printMutex
 		, std::size_t numRabbits
 	);
 
 	void startRace();
 
 private:
-	int raceTarget;
-	std::mutex& printMutex;
+	RabbitContestParams contestParams;
 
 	std::vector<Rabbit> rabbits;
 	std::vector<std::thread> threads;

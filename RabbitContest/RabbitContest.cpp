@@ -1,17 +1,17 @@
 #include "RabbitContest.h"
+#include "RabbitContestParams.h"
 
 RabbitContest::RabbitContest
 (
-	  int target
-	, std::mutex& printMtx
+	int raceTarget
+	, std::mutex& printMutex
 	, std::size_t numRabbits
 )
-	: raceTarget(target)
-	, printMutex(printMtx)
+	: contestParams{ raceTarget, printMutex }
 {
 	for (std::size_t i = 0; i < numRabbits; ++i)
 	{
-		rabbits.emplace_back(i, raceTarget, printMutex);
+		rabbits.emplace_back(i, contestParams);
 	}
 }
 

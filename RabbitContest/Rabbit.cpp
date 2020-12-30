@@ -8,17 +8,12 @@
 #include "Rabbit.h"
 #include "utils.h"
 
-Rabbit::Rabbit(
-	  unsigned int rabbitId
-	, int target
-	, std::mutex& printMtx
-)
-	: randomGenerator((std::random_device())())
+Rabbit::Rabbit(std::size_t rabbitId, RabbitContestParams& contestParams)
+	: id(rabbitId)
+	, contestParams(contestParams)
+	, randomGenerator((std::random_device())())
 	, hopRandomizer{ 0, 9 }
 	, napRandomizer{ 500, 5000 }
-	, id(rabbitId)
-	, raceTarget(target)
-	, printMutex(printMtx)
 {
 }
 
@@ -58,18 +53,37 @@ int Rabbit::getHop()
 	return hop;
 }
 
-void Rabbit::takeNap()
+bool Rabbit::takeNap()
 {
 	auto napDuration = napRandomizer(randomGenerator);
-	std::this_thread::sleep_for(std::chrono::milliseconds(napDuration));
+
+	std::unique_lock<std::mutex> lock(contestParams.finishMutex);
+	bool someoneWon = contestParams.cvFinish.wait_for(lock, 
+		std::chrono::milliseconds(napDuration),
+		[&contestParams = contestParams]() 
+		{ 
+			return contestParams.winnerRabbitId >= 0; 
+		});
+	if (someoneWon)
+	{
+		printMessage("Concedes");
+		return false;
+	}
+
+	return true;
 }
 
 void Rabbit::runRace()
 {
 	currentLocation = 0;
 
-	while (currentLocation < raceTarget)
+	while (currentLocation < contestParams.raceTarget)
 	{
+		if (!takeNap())
+		{
+			return;
+		}
+
 		int hop = getHop();
 		currentLocation += hop;
 
@@ -80,16 +94,20 @@ void Rabbit::runRace()
 
 		printMessage("hop = " + std::to_string(hop) +
 			" location = " + std::to_string(currentLocation));
-
-		takeNap();
 	}
 
 	printMessage("Completed race");
+
+	{
+		std::unique_lock<std::mutex> lock(contestParams.finishMutex);
+		contestParams.winnerRabbitId = id;
+	}
+	contestParams.cvFinish.notify_all();
 }
 
 void Rabbit::printMessage(std::string const& msg) const
 {
-	std::lock_guard<std::mutex> lock(printMutex);
+	std::lock_guard<std::mutex> lock(contestParams.printMutex);
 
 	std::cout << getCurrentTimestamp() << ": " << id
 		<< ": " << msg << std::endl;

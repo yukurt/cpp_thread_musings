@@ -11,7 +11,7 @@ int main()
     using namespace std::chrono_literals;
     std::chrono::duration<unsigned int> raceTimeTick = 1s;
 
-    const int raceTarget = 70;
+    const int raceTarget = 20;
 
     const int numRabbits = 8;
 

@@ -15,6 +15,6 @@ int main()
 
     const int numRabbits = 8;
 
-    RabbitContest contest(raceTarget, raceTimeTick, printMutex, numRabbits);
+    RabbitContest contest(raceTarget, printMutex, numRabbits);
     contest.startRace();
 }

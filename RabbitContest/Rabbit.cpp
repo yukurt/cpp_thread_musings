@@ -1,4 +1,3 @@
-#include "Rabbit.h"
 #include <iostream>
 #include <string>
 #include <thread>
@@ -6,10 +5,12 @@
 #include <iomanip>
 #include <random>
 
+#include "Rabbit.h"
+#include "utils.h"
+
 Rabbit::Rabbit(
 	  unsigned int rabbitId
 	, int target
-	, std::chrono::duration<unsigned int> const& timeTick
 	, std::mutex& printMtx
 )
 	: randomGenerator((std::random_device())())
@@ -17,7 +18,6 @@ Rabbit::Rabbit(
 	, napRandomizer{ 500, 5000 }
 	, id(rabbitId)
 	, raceTarget(target)
-	, raceTimeTick(timeTick)
 	, printMutex(printMtx)
 {
 }
@@ -85,26 +85,6 @@ void Rabbit::runRace()
 	}
 
 	printMessage("Completed race");
-}
-
-std::string getCurrentTimestamp()
-{
-	using std::chrono::system_clock;
-	auto currentTime = std::chrono::system_clock::now();
-	char buffer[80];
-
-	auto transformed = currentTime.time_since_epoch().count() / 1000000;
-
-	auto millis = transformed % 1000;
-
-	std::time_t tt;
-	tt = system_clock::to_time_t(currentTime);
-	struct tm timeinfo;
-	localtime_s(&timeinfo, &tt);
-	strftime(buffer, 80, "%F %H:%M:%S", &timeinfo);
-	sprintf_s(buffer, "%s:%03d", buffer, (int)millis);
-
-	return std::string(buffer);
 }
 
 void Rabbit::printMessage(std::string const& msg) const

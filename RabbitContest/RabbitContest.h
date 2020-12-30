@@ -11,7 +11,6 @@ public:
 	RabbitContest
 	(
 		  int target
-		, std::chrono::duration<unsigned int> const& timeTick
 		, std::mutex& printMtx
 		, std::size_t numRabbits
 	);
@@ -20,7 +19,6 @@ public:
 
 private:
 	int raceTarget;
-	const std::chrono::duration<unsigned int> raceTimeTick;
 	std::mutex& printMutex;
 
 	std::vector<Rabbit> rabbits;

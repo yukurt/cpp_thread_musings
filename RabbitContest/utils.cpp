@@ -1,6 +1,8 @@
 #include <ctime>
 #include <string>
 #include <chrono>
+#include <mutex>
+#include <iostream>
 
 #include "utils.h"
 
@@ -22,4 +24,45 @@ std::string getCurrentTimestamp()
 	sprintf_s(buffer, "%s:%03d", buffer, (int)millis);
 
 	return std::string(buffer);
+}
+
+std::string toString(LogLevel logLevel)
+{
+	switch (logLevel)
+	{
+	case LogLevel::FATAL:
+		return "FATAL";
+	case LogLevel::ERROR:
+		return "ERROR";
+	case LogLevel::WARN:
+		return "WARN ";
+	case LogLevel::INFO:
+		return "INFO ";
+	case LogLevel::DEBUG:
+		return "DEBUG";
+	default:
+		return "UNKNOWN!!!";
+	}
+}
+
+void printMessage
+(
+	LogLevel actualLogLevel
+	, LogLevel intendedLogLevel
+	, std::mutex& printMutex
+	, std::function<std::string()> f
+)
+{
+	if (actualLogLevel >= intendedLogLevel)
+	{
+		std::lock_guard<std::mutex> lock(printMutex);
+
+		std::cout
+			<< toString(intendedLogLevel)
+			<< ": "
+			<< getCurrentTimestamp()
+			<< ": "
+			<< f()
+			<< std::endl;
+	}
 }

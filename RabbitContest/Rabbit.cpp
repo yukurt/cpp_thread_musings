@@ -46,7 +46,7 @@ int Rabbit::getHop()
 		hop = 2;
 		break;
 	default:
-		printMessage("ERROR: " + std::string(__func__) + 
+		printMessage(LogLevel::ERROR, std::string(__func__) + 
 			": " + std::to_string(rabbitParams.id) + 
 			": Illegal random number = " + 
 			std::to_string(random));
@@ -78,13 +78,13 @@ void Rabbit::makeHop()
 		currentLocation = 0;
 	}
 
-	printMessage("hop = " + std::to_string(hop) +
+	printMessage(LogLevel::DEBUG, "hop = " + std::to_string(hop) +
 		" location = " + std::to_string(currentLocation));
 }
 
 void Rabbit::performWinnerActions()
 {
-	printMessage("Completed race");
+	printMessage(LogLevel::INFO, "Completed race");
 
 	{
 		std::unique_lock<std::mutex> lock(contestParams.finishMutex);
@@ -104,7 +104,7 @@ void Rabbit::runRace()
 
 		if (someoneElseWon)
 		{
-			printMessage("Concedes");
+			printMessage(LogLevel::DEBUG, "Concedes");
 			return;
 		}
 
@@ -114,10 +114,15 @@ void Rabbit::runRace()
 	performWinnerActions();
 }
 
-void Rabbit::printMessage(std::string const& msg) const
+void Rabbit::printMessage(LogLevel intendedLogLevel, 
+	std::string const& msg) const
 {
-	std::lock_guard<std::mutex> lock(contestParams.printMutex);
-
-	std::cout << getCurrentTimestamp() << ": " << rabbitParams.id
-		<< ": " << msg << std::endl;
+	::printMessage(
+		rabbitParams.logLevel,
+		intendedLogLevel,
+		rabbitParams.printMutex,
+		[&rabbitParams = rabbitParams, &msg]() 
+		{ 
+			return std::to_string(rabbitParams.id) + ": " + msg; 
+		});
 }

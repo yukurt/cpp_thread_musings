@@ -2,6 +2,8 @@
 
 #include <random>
 
+#include "utils.h"
+
 struct RabbitParams;
 struct RabbitContestParams;
 
@@ -13,7 +15,8 @@ public:
 private:
 	void makeHop();
 	void performWinnerActions();
-	void printMessage(std::string const& msg) const;
+	void printMessage(LogLevel intendedLogLevel, std::string const& msg) const;
+
 	int getHop();
 	void takeNap();
 

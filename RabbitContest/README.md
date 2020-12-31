@@ -6,6 +6,7 @@ Two races are simulated.
 
 Here is a sample output:
 
+```
 INFO : 21:42:59:794: contest: Race started
 21:43:04:844: Race status:
  0: *
@@ -248,3 +249,4 @@ INFO : 21:45:01:010: rabbit:  4: Completed race
 C:\Users\yukur\workarea\GitHub\cpp_thread_musings\RabbitContest\Debug\RabbitContest.exe (process 30356) exited with code 0.
 To automatically close the console when debugging stops, enable Tools->Options->Debugging->Automatically close the console when debugging stops.
 Press any key to close this window . . .
+```

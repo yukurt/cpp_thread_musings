@@ -1,23 +1,15 @@
+#include "Rabbit.h"
 #include "RabbitContest.h"
 #include "RabbitContestParams.h"
 
-RabbitContest::RabbitContest
-(
-	int raceTarget
-	, std::mutex& printMutex
-	, std::size_t numRabbits
-)
-	: contestParams{ raceTarget, printMutex }
+RabbitContest::RabbitContest(RabbitContestParams& contestParams_)
+	: contestParams(contestParams_)
 {
-	for (std::size_t i = 0; i < numRabbits; ++i)
-	{
-		rabbits.emplace_back(i, contestParams);
-	}
 }
 
 void RabbitContest::startRace()
 {
-	for (auto& rabbit : rabbits)
+	for (auto& rabbit : contestParams.rabbits)
 	{
 		threads.emplace_back(&Rabbit::runRace, rabbit);
 	}

@@ -1,23 +1,24 @@
 #pragma once
 
-#include <mutex>
-#include <chrono>
 #include <random>
 
-#include "RabbitContestParams.h"
+struct RabbitParams;
+struct RabbitContestParams;
 
 class Rabbit
 {
 public:
-	Rabbit(std::size_t rabbitId, RabbitContestParams& contestParams);
+	Rabbit(RabbitParams& rabbitParams_, RabbitContestParams& contestParams_);
 	void runRace();
 private:
+	void makeHop();
+	void performWinnerActions();
 	void printMessage(std::string const& msg) const;
 	int getHop();
-	bool takeNap();
+	void takeNap();
 
 private:
-	unsigned int id = 0;
+	RabbitParams& rabbitParams;
 	RabbitContestParams& contestParams;
 
 	int currentLocation = 0;
@@ -25,4 +26,6 @@ private:
 	std::mt19937 randomGenerator;
 	std::uniform_int_distribution<> hopRandomizer;
 	std::uniform_int_distribution<> napRandomizer;
+
+	bool someoneElseWon = false;
 };

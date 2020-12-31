@@ -1,26 +1,17 @@
 #pragma once
 
-#include <mutex>
 #include <vector>
-#include "Rabbit.h"
 #include <thread>
-#include <condition_variable>
+
+struct RabbitContestParams;
 
 class RabbitContest
 {
 public:
-	RabbitContest
-	(
-		  int raceTarget
-		, std::mutex& printMutex
-		, std::size_t numRabbits
-	);
-
+	RabbitContest(RabbitContestParams& contestParams_);
 	void startRace();
 
 private:
-	RabbitContestParams contestParams;
-
-	std::vector<Rabbit> rabbits;
+	RabbitContestParams& contestParams;
 	std::vector<std::thread> threads;
 };

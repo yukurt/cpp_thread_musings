@@ -148,6 +148,7 @@
     <ClInclude Include="Rabbit.h" />
     <ClInclude Include="RabbitContest.h" />
     <ClInclude Include="RabbitContestParams.h" />
+    <ClInclude Include="RabbitParams.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

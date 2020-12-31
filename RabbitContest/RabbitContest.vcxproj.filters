@@ -41,5 +41,8 @@
     <ClInclude Include="RabbitContestParams.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="RabbitParams.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

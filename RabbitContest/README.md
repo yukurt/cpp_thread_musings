@@ -1,10 +1,12 @@
+# Rabbit Contest
+
 A rabbit race is simulated in this project. Eight rabbits compete against each other. Each rabbit repeats the cycle of hopping a random number of steps and napping a random amount of time, until it completes the race track. A hop can be in the forward or backward direction. When a rabbit is able to finish the race track, it is declared the winner, and the race is stopped. Each rabbit is simulated by a separate thread.
 
 An additional thread is used for monitoring the progress of the rabbits. The monitor reports the progress of the rabbits every 5 seconds.
 
 Two races are simulated.
 
-Here is a sample output:
+## Sample Output
 
 ```
 INFO : 21:42:59:794: contest: Race started

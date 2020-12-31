@@ -145,6 +145,7 @@
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="main.h" />
     <ClInclude Include="Rabbit.h" />
     <ClInclude Include="RabbitContest.h" />
     <ClInclude Include="RabbitContestParams.h" />

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <iomanip>
 
@@ -47,9 +48,7 @@ int Rabbit::getHop()
 		break;
 	default:
 		printMessage(LogLevel::ERROR, std::string(__func__) + 
-			": " + std::to_string(rabbitParams.id) + 
-			": Illegal random number = " + 
-			std::to_string(random));
+			": Illegal random number = " + std::to_string(random));
 	}
 
 	return hop;
@@ -68,6 +67,14 @@ void Rabbit::takeNap()
 		});
 }
 
+std::string Rabbit::generateHopMessage(int hop) const
+{
+	std::ostringstream oss;
+	oss << "hop = " << std::right << std::setw(3) << hop
+		<< " location = " << std::setw(2) << currentLocation;
+	return oss.str();
+}
+
 void Rabbit::makeHop()
 {
 	int hop = getHop();
@@ -78,8 +85,8 @@ void Rabbit::makeHop()
 		currentLocation = 0;
 	}
 
-	printMessage(LogLevel::DEBUG, "hop = " + std::to_string(hop) +
-		" location = " + std::to_string(currentLocation));
+	printMessage(LogLevel::DEBUG, 
+		[this, hop]() { return generateHopMessage(hop); });
 }
 
 void Rabbit::performWinnerActions()
@@ -96,7 +103,7 @@ void Rabbit::performWinnerActions()
 
 void Rabbit::runRace()
 {
-	currentLocation = 0;
+	resetParams();
 
 	while (currentLocation < contestParams.raceTarget)
 	{
@@ -114,15 +121,40 @@ void Rabbit::runRace()
 	performWinnerActions();
 }
 
+void Rabbit::resetParams()
+{
+	currentLocation = 0;
+	someoneElseWon = false;
+}
+
 void Rabbit::printMessage(LogLevel intendedLogLevel, 
 	std::string const& msg) const
+{
+	printMessage(intendedLogLevel, [&msg]() { return msg; });
+}
+
+void Rabbit::printMessage(LogLevel intendedLogLevel,
+	std::function<std::string()> f) const
 {
 	::printMessage(
 		rabbitParams.logLevel,
 		intendedLogLevel,
 		rabbitParams.printMutex,
-		[&rabbitParams = rabbitParams, &msg]() 
-		{ 
-			return std::to_string(rabbitParams.id) + ": " + msg; 
+		[&rabbitParams = rabbitParams, f]()
+		{
+			std::ostringstream oss;
+			oss << "rabbit: " << std::right << std::setw(2)
+				<< rabbitParams.id << ": " << f();
+			return oss.str();
 		});
+}
+
+RabbitParams const& Rabbit::getRabbitParams() const
+{
+	return rabbitParams;
+}
+
+int Rabbit::getCurrentLocation() const
+{
+	return currentLocation;
 }

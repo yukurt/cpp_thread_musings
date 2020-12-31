@@ -90,7 +90,7 @@ void RabbitContest::printRabbitLocation(const Rabbit& rabbit)
 	{
 		for (int i = 0; i <= contestParams.raceTarget - 1; ++i)
 		{
-			std::cout << " ";
+			std::cout << "-";
 		}
 		std::cout << "*" << std::endl;
 		return;
@@ -98,7 +98,7 @@ void RabbitContest::printRabbitLocation(const Rabbit& rabbit)
 
 	for (int i = 0; i < location; ++i)
 	{
-		std::cout << " ";
+		std::cout << "-";
 	}
 
 	std::cout << "*";

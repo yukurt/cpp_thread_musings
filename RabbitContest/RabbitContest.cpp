@@ -13,7 +13,7 @@ RabbitContest::RabbitContest(RabbitContestParams& contestParams_)
 
 void RabbitContest::startRace()
 {
-	printMessage(LogLevel::INFO, "Race started");
+	printMessage(LogLevel::INFO, "RACE BEGINS");
 	
 	resetParams();
 
@@ -34,6 +34,8 @@ void RabbitContest::startRace()
 			thr.join();
 		}
 	}
+
+	printMessage(LogLevel::INFO, "RACE ENDS");
 }
 
 void RabbitContest::resetParams()
@@ -56,6 +58,7 @@ void RabbitContest::waitMonitorInterval()
 
 void RabbitContest::monitorRace()
 {
+	printRaceStatus();
 	while (true)
 	{
 		waitMonitorInterval();
@@ -73,10 +76,12 @@ void RabbitContest::printRaceStatus()
 	std::lock_guard<std::mutex> lock(contestParams.printMutex);
 
 	std::cout << getCurrentTimestamp() << ": Race status:\n";
+	printStatusBorder();
 	for (auto const& rabbit : contestParams.rabbits)
 	{
 		printRabbitLocation(rabbit);
 	}
+	printStatusBorder();
 }
 
 void RabbitContest::printRabbitLocation(const Rabbit& rabbit)
@@ -92,22 +97,32 @@ void RabbitContest::printRabbitLocation(const Rabbit& rabbit)
 		{
 			std::cout << "-";
 		}
-		std::cout << "*" << std::endl;
-		return;
+		std::cout << "+";
 	}
-
-	for (int i = 0; i < location; ++i)
+	else
 	{
-		std::cout << "-";
+		for (int i = 0; i < location; ++i)
+		{
+			std::cout << "-";
+		}
+
+		std::cout << "+";
+
+		for (int i = location + 1; i <= contestParams.raceTarget; ++i)
+		{
+			std::cout << " ";
+		}
 	}
 
-	std::cout << "*";
+	std::cout << "|" << std::endl;
+}
 
-	for (int i = location + 1; i <= contestParams.raceTarget; ++i)
+void RabbitContest::printStatusBorder()
+{
+	for (int i = 0; i < 6 + contestParams.raceTarget; ++i)
 	{
-		std::cout << " ";
+		std::cout << "*";
 	}
-
 	std::cout << std::endl;
 }
 

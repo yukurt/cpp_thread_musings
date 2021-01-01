@@ -91,7 +91,7 @@ void Rabbit::makeHop()
 
 void Rabbit::performWinnerActions()
 {
-	printMessage(LogLevel::INFO, "Completed race");
+	printMessage(LogLevel::INFO, "WINS");
 
 	{
 		std::unique_lock<std::mutex> lock(contestParams.finishMutex);

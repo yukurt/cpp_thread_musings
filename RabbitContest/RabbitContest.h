@@ -17,6 +17,7 @@ private:
 	void monitorRace();
 	void printRaceStatus();
 	void printRabbitLocation(const Rabbit& rabbit);
+	void printStatusBorder();
 	void printMessage(LogLevel intendedLogLevel,
 		std::string const& msg) const;
 

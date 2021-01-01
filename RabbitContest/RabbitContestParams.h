@@ -3,6 +3,7 @@
 #include <vector>
 #include <mutex>
 #include <condition_variable>
+#include <atomic>
 
 #include "Rabbit.h"
 
@@ -26,7 +27,7 @@ struct RabbitContestParams
 	LogLevel logLevel = LogLevel::INFO;
 	std::vector<Rabbit>& rabbits;
 	std::mutex finishMutex;
-	int winnerRabbitId = -1;
+	std::atomic<int> winnerRabbitId = -1;
 	std::condition_variable cvFinish;
 	std::chrono::duration<int, std::milli> monitorInterval{ 5000 };
 	bool enableRaceMonitoring = true;

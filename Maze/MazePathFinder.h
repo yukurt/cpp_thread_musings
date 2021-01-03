@@ -23,6 +23,9 @@ public:
 		, bool& stopFinding_
 	);
 	MazePath findPath();
+	void addNewPaths(std::vector<MazePath>& newPaths);
+	void printCompletePath();
+	MazePath getPartialPath();
 	MazePath const& getCompletePath() const;
 	bool isBusyFinding() const;
 
@@ -75,5 +78,6 @@ private:
 	bool& stopFinding;
 	MazePath completePath;
 	bool isBusySearching = false;
+	bool debug = false;
 };
 

@@ -147,6 +147,7 @@
     <ClCompile Include="MazePoint.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="main.h" />
     <ClInclude Include="Maze.h" />
     <ClInclude Include="MazePath.h" />
     <ClInclude Include="MazePathFinder.h" />

@@ -16,47 +16,57 @@ MazePathFindingManager::MazePathFindingManager(const Maze& maze_,
 
 MazePath MazePathFindingManager::findPath(MazePoint const& startingPoint)
 {
-	MazePath completedPath;
+	MazePath completePath;
 
-	std::vector<std::future<MazePath>> completedPathFutures{ numThreads };
-	for (auto i = 0u; i < numThreads; ++i)
-	{
-		completedPathFutures[i] = std::async(std::launch::async,
-			&MazePathFinder::findPath, &pathFinders[i]);
-	}
-
-	{
-		std::lock_guard<std::mutex> lock(partialPathsMutex);
-		partialPaths.push({ startingPoint });
-	}
+	launchThreads();
+	pushStartingPoint(startingPoint);
 
 	while (true)
 	{
-		for (auto i = 0u; i < numThreads; ++i)
-		{
-			auto status = completedPathFutures[i].wait_for(threadWaitTime);
-			if (status == std::future_status::ready)
-			{
-				completedPath = completedPathFutures[i].get();
-				stopFinding = true;
-				break;
-			}
-		}
-
+		inspectThreads(completePath);
 		if (stopFinding)
 		{
 			break;
 		}
 
+		if (partialPaths.empty())
 		{
-			std::lock_guard<std::mutex> lock(partialPathsMutex);
-			if (partialPaths.empty())
-			{
-				stopFinding = true;
-				break;
-			}
+			stopFinding = true;
+			break;
 		}
 	}
 
-	return completedPath;
+	std::this_thread::sleep_for(threadWaitTime);
+	return completePath;
+}
+
+void MazePathFindingManager::inspectThreads(MazePath& completePath)
+{
+	for (auto i = 0u; i < numThreads; ++i)
+	{
+		auto status = completePathsFutures[i].wait_for(threadWaitTime);
+		if (status == std::future_status::ready)
+		{
+			completePath = completePathsFutures[i].get();
+			stopFinding = true;
+			break;
+		}
+	}
+}
+
+void MazePathFindingManager::pushStartingPoint(const MazePoint& startingPoint)
+{
+	{
+		std::lock_guard<std::mutex> lock(partialPathsMutex);
+		partialPaths.push({ startingPoint });
+	}
+}
+
+void MazePathFindingManager::launchThreads()
+{
+	for (auto i = 0u; i < numThreads; ++i)
+	{
+		completePathsFutures.push_back(std::async(std::launch::async,
+			&MazePathFinder::findPath, &pathFinders[i]));
+	}
 }

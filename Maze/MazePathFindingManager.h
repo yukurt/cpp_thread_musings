@@ -4,6 +4,7 @@
 #include <queue>
 #include <mutex>
 #include <chrono>
+#include <future>
 
 #include "MazePath.h"
 #include "MazePathFinder.h"
@@ -18,6 +19,11 @@ public:
 	MazePath findPath(MazePoint const& startingPoint);
 
 private:
+	void inspectThreads(MazePath& completePath);
+	void pushStartingPoint(const MazePoint& startingPoint);
+	void launchThreads();
+
+private:
 	Maze const& maze;
 	std::mutex& printMutex;
 	std::size_t numThreads;
@@ -30,5 +36,7 @@ private:
 	std::chrono::duration<std::size_t, std::milli> threadWaitTime{ 100 };
 
 	bool stopFinding = false;
+
+	std::vector<std::future<MazePath>> completePathsFutures;
 };
 

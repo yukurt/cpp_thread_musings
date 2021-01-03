@@ -21,74 +21,78 @@ MazePathFinder::MazePathFinder
 
 MazePath MazePathFinder::findPath()
 {
-	while (true)
+	while (!stopFinding)
 	{
-		if (stopFinding)
+		MazePath currentPath = getPartialPath();
+		
+		if (currentPath.empty())
 		{
-			std::lock_guard<std::mutex> plock(printMutex);
-			std::cout << id << ": force stoppage" << std::endl;
-			break;
+			std::this_thread::yield;
+			continue;
 		}
 
-		MazePath currentPath;
-
-		{
-			std::unique_lock<std::mutex> lock(partialPathsMutex);
-			if (partialPaths.empty())
-			{
-				lock.unlock();
-				std::this_thread::yield();
-				continue;
-			}
-
-			isBusySearching = true;
-
-			currentPath = partialPaths.front();
-			partialPaths.pop();
-
-			/*std::lock_guard<std::mutex> plock();
-			std::cout << id << ": ";
-			for (auto const& point : currentPath)
-			{
-				std::cout << "(" << point.getRowIndex() << ","
-					<< point.getColumnIndex() << ") ";
-			}
-			std::cout << std::endl;*/
-		}
+		isBusySearching = true;
 
 		auto const endPoint = currentPath.back();
-
 		std::vector<MazePath> newPaths;
-
 		createNewPaths(endPoint, currentPath, newPaths);
+
 		if (!completePath.empty())
 		{
-			std::lock_guard<std::mutex> lock(printMutex);
-			std::cout << id << ": found complete path" << std::endl;
-			std::cout << id << ": ";
-			for (auto const& point : completePath)
-			{
-				std::cout << "(" << point.getRowIndex() << ","
-					<< point.getColumnIndex() << ") ";
-			}
-			std::cout << std::endl;
+			printCompletePath();
 			isBusySearching = false;
 			break;
 		}
 
-		if (!newPaths.empty())
-		{
-			std::lock_guard<std::mutex> lock(partialPathsMutex);
-			for (auto const& path : newPaths)
-			{
-				partialPaths.push(path);
-			}
-		}
-
+		addNewPaths(newPaths);
 		isBusySearching = false;
 	}
 
 	return completePath;
+}
+
+void MazePathFinder::addNewPaths(std::vector<MazePath>& newPaths)
+{
+	if (!newPaths.empty())
+	{
+		std::lock_guard<std::mutex> lock(partialPathsMutex);
+		for (auto const& path : newPaths)
+		{
+			partialPaths.push(path);
+		}
+	}
+}
+
+void MazePathFinder::printCompletePath()
+{
+	if (debug)
+	{
+		std::lock_guard<std::mutex> lock(printMutex);
+		std::cout << id << ": found complete path: ";
+		for (auto const& point : completePath)
+		{
+			std::cout << "(" << point.getRowIndex() << ","
+				<< point.getColumnIndex() << ") ";
+		}
+		std::cout << std::endl;
+	}
+}
+
+MazePath MazePathFinder::getPartialPath()
+{	
+	MazePath path;
+
+	std::unique_lock<std::mutex> lock(partialPathsMutex);
+	if (partialPaths.empty())
+	{
+		lock.unlock();
+		return path;
+	}
+
+	path = partialPaths.front();
+	partialPaths.pop();
+
+	return path;
 }
 
 MazePath const& MazePathFinder::getCompletePath() const

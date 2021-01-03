@@ -1,9 +1,10 @@
 #include <iostream>
 #include <algorithm>
 #include "MazePathFinder.h"
+#include "MazePathFinderParams.h"
 
-MazePathFinder::MazePathFinder(Maze& maze_)
-	: maze(maze_)
+MazePathFinder::MazePathFinder(MazePathFinderParams& finderParams_)
+	: finderParams(finderParams_)
 {
 }
 
@@ -81,7 +82,7 @@ void MazePathFinder::createNewUpPath
 {
 	auto upperRowIndex = endPoint.getRowIndex() - 1;
 	if (upperRowIndex >= 0 && 
-		!maze.isBrick({upperRowIndex, endPoint.getColumnIndex()}))
+		!finderParams.maze.isBrick({upperRowIndex, endPoint.getColumnIndex()}))
 	{
 		auto newPathPoint = MazePoint(upperRowIndex,
 			endPoint.getColumnIndex());
@@ -98,14 +99,14 @@ void MazePathFinder::createNewDownPath
 )
 {
 	auto lowerRowIndex = endPoint.getRowIndex() + 1;
-	if (lowerRowIndex < static_cast<int>(maze.getNumRows()) &&
-		!maze.isBrick({ lowerRowIndex, endPoint.getColumnIndex() }))
+	if (lowerRowIndex < static_cast<int>(finderParams.maze.getNumRows()) &&
+		!finderParams.maze.isBrick({ lowerRowIndex, endPoint.getColumnIndex() }))
 	{
 		auto newPathPoint = MazePoint(lowerRowIndex,
 			endPoint.getColumnIndex());
 
 		createNewPath(currentPath, newPathPoint, newPaths,
-			lowerRowIndex, maze.getNumRows() - 1);
+			lowerRowIndex, finderParams.maze.getNumRows() - 1);
 	}
 }
 
@@ -118,7 +119,7 @@ void MazePathFinder::createNewLeftPath
 {
 	auto leftColumnIndex = endPoint.getColumnIndex() - 1;
 	if (leftColumnIndex >= 0 &&
-		!maze.isBrick({ endPoint.getRowIndex(), leftColumnIndex }))
+		!finderParams.maze.isBrick({ endPoint.getRowIndex(), leftColumnIndex }))
 	{
 		auto newPathPoint = MazePoint(endPoint.getRowIndex(), leftColumnIndex);
 
@@ -134,14 +135,14 @@ void MazePathFinder::createNewRightPath
 )
 {
 	auto rightColumnIndex = endPoint.getColumnIndex() - 1;
-	if (rightColumnIndex < static_cast<int>(maze.getNumColumns()) &&
-		!maze.isBrick({ endPoint.getRowIndex(), rightColumnIndex }))
+	if (rightColumnIndex < static_cast<int>(finderParams.maze.getNumColumns()) &&
+		!finderParams.maze.isBrick({ endPoint.getRowIndex(), rightColumnIndex }))
 	{
 		auto newPathPoint = MazePoint(endPoint.getRowIndex(),
 			rightColumnIndex);
 
 		createNewPath(currentPath, newPathPoint, newPaths,
-			rightColumnIndex, maze.getNumColumns() - 1);
+			rightColumnIndex, finderParams.maze.getNumColumns() - 1);
 	}
 }
 

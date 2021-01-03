@@ -8,11 +8,13 @@
 #include "Maze.h"
 
 class Maze;
+struct MazePathFinderParams;
 
 class MazePathFinder
 {
 public:
-	MazePathFinder(Maze& maze_);
+	MazePathFinder(MazePathFinderParams& finderParams_);
+
 	void findPath(MazePoint const& startingPoint);
 	MazePath const& getCompletePath() const;
 
@@ -57,8 +59,8 @@ private:
 	);
 
 private:
-	Maze& maze;
 	MazePath completePath;
 	std::queue<MazePath> partialPaths;
+	MazePathFinderParams& finderParams;
 };
 

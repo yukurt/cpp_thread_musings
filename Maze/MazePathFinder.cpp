@@ -31,8 +31,6 @@ MazePath MazePathFinder::findPath()
 			continue;
 		}
 
-		isBusySearching = true;
-
 		auto const endPoint = currentPath.back();
 		std::vector<MazePath> newPaths;
 		createNewPaths(endPoint, currentPath, newPaths);
@@ -40,12 +38,10 @@ MazePath MazePathFinder::findPath()
 		if (!completePath.empty())
 		{
 			printCompletePath();
-			isBusySearching = false;
 			break;
 		}
 
 		addNewPaths(newPaths);
-		isBusySearching = false;
 	}
 
 	return completePath;
@@ -98,11 +94,6 @@ MazePath MazePathFinder::getPartialPath()
 MazePath const& MazePathFinder::getCompletePath() const
 {
 	return completePath;
-}
-
-bool MazePathFinder::isBusyFinding() const
-{
-	return isBusySearching;
 }
 
 void MazePathFinder::createNewPaths

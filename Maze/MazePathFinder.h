@@ -27,7 +27,6 @@ public:
 	void printCompletePath();
 	MazePath getPartialPath();
 	MazePath const& getCompletePath() const;
-	bool isBusyFinding() const;
 
 private:
 	void createNewPaths
@@ -77,7 +76,6 @@ private:
 	std::mutex& partialPathsMutex;
 	bool& stopFinding;
 	MazePath completePath;
-	bool isBusySearching = false;
 	bool debug = false;
 };
 

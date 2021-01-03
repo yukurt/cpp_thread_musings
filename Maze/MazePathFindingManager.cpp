@@ -36,7 +36,6 @@ MazePath MazePathFindingManager::findPath(MazePoint const& startingPoint)
 		}
 	}
 
-	std::this_thread::sleep_for(threadWaitTime);
 	return completePath;
 }
 

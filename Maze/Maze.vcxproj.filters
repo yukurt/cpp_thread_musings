@@ -30,15 +30,6 @@
     <ClCompile Include="MazePath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MazePathFindingCoordinator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MazePathFindingCoordinatorParams.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MazePathFinderParams.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MazePathFinder.h">
@@ -51,15 +42,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MazePath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MazePathFindingCoordinator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MazePathFindingCoordinatorParams.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MazePathFinderParams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

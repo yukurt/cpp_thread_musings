@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <queue>
+#include <mutex>
 
 #include "MazePoint.h"
 #include "MazePath.h"
@@ -12,9 +13,18 @@ class Maze;
 class MazePathFinder
 {
 public:
-	MazePathFinder(Maze& maze_);
-	void findPath(MazePoint const& startingPoint);
+	MazePathFinder
+	(
+		  std::size_t id_
+		, const Maze& maze_
+		, std::mutex& printMutex_
+		, std::queue<MazePath>& partialPaths_
+		, std::mutex& partialPathsMutex_
+		, bool& stopFinding_
+	);
+	MazePath findPath();
 	MazePath const& getCompletePath() const;
+	bool isBusyFinding() const;
 
 private:
 	void createNewPaths
@@ -57,8 +67,13 @@ private:
 	);
 
 private:
-	Maze& maze;
+	std::size_t id;
+	Maze const& maze;
+	std::mutex& printMutex;
+	std::queue<MazePath>& partialPaths;
+	std::mutex& partialPathsMutex;
+	bool& stopFinding;
 	MazePath completePath;
-	std::queue<MazePath> partialPaths;
+	bool isBusySearching = false;
 };
 

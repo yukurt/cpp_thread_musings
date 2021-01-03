@@ -2,6 +2,7 @@
 #include "MazePoint.h"
 #include "Maze.h"
 #include "MazePathFinder.h"
+#include "MazePathFindingManager.h"
 
 int main()
 {
@@ -11,17 +12,19 @@ int main()
 		return 1;
 	}
 
-	MazePathFinder pathFinder(maze);
-	pathFinder.findPath(MazePoint(19, 15));
+	std::mutex printMutex;
 
-	if (!pathFinder.getCompletePath().empty())
+	MazePathFindingManager findingManager(maze, printMutex, 5);
+
+	auto completedPath = findingManager.findPath(MazePoint(19, 15));
+	if (!completedPath.empty())
 	{
-		for (auto const& point : pathFinder.getCompletePath())
+		for (auto const& point : completedPath)
 		{
 			std::cout << point.getRowIndex() << " " 
 				<< point.getColumnIndex() << std::endl;
 		}
-		maze.printMazeWithPath(pathFinder.getCompletePath());
+		maze.printMazeWithPath(completedPath);
 	}
 	else
 	{

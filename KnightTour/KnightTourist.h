@@ -25,17 +25,22 @@ public:
 		, totalKnightMoves
 	};
 
-	KnightTourist(std::latch& closedToursToFind_,
-		std::vector<ChessBoard<BOARD_LENGTH>>& closedTourBoards_,
-		std::mutex& closedTourMutex_);
+	KnightTourist
+	(
+		  std::latch& closedToursToFind_
+		, std::vector<ChessBoard<BOARD_LENGTH>>& closedTourBoards_
+		, std::mutex& closedTourMutex_
+		, bool const& stopFinding_
+	);
 
-	void findClosedTour();
+	void findClosedTours();
 	void showTour() const;
 
 private:
-	std::latch& closedToursToFind;
+	std::latch& closedToursLatch;
 	std::vector<ChessBoard<BOARD_LENGTH>>& closedTourBoards;
 	std::mutex& closedTourMutex;
+	bool const& stopFinding;
 
 	void initializeRandomEngine();
 	BoardLocation getNewLocation(BoardLocation const& startingLocation,
@@ -63,22 +68,25 @@ void KnightTourist<BOARD_LENGTH>::initializeRandomEngine()
 }
 
 template<std::size_t BOARD_LENGTH>
-inline KnightTourist<BOARD_LENGTH>::KnightTourist(
-	std::latch& closedToursToFind_,
-	std::vector<ChessBoard<BOARD_LENGTH>>& closedTourBoards_,
-	std::mutex& closedTourMutex_)
-	: closedToursToFind(closedToursToFind_)
+KnightTourist<BOARD_LENGTH>::KnightTourist
+(
+	  std::latch& closedToursToFind_
+	, std::vector<ChessBoard<BOARD_LENGTH>>& closedTourBoards_
+	, std::mutex& closedTourMutex_
+	, bool const& stopFinding_
+)
+	: closedToursLatch(closedToursToFind_)
 	, closedTourBoards(closedTourBoards_)
 	, closedTourMutex(closedTourMutex_)
+	, stopFinding(stopFinding_)
 {
 	initializeRandomEngine();
 }
 
 template<std::size_t BOARD_LENGTH>
-void KnightTourist<BOARD_LENGTH>::findClosedTour()
+void KnightTourist<BOARD_LENGTH>::findClosedTours()
 {
-	bool foundClosedTour = false;
-	while (!foundClosedTour)
+	while (!stopFinding)
 	{
 		board.clear();
 
@@ -104,14 +112,9 @@ void KnightTourist<BOARD_LENGTH>::findClosedTour()
 
 		if (visitationOrder == board.getTotalLocations() + 1)
 		{
-			foundClosedTour = true;
-
 			std::lock_guard<std::mutex> lock(closedTourMutex);
 			closedTourBoards.push_back(std::move(board));
-
-			closedToursToFind.count_down();
-
-			break;
+			closedToursLatch.count_down();
 		}
 	}
 }

@@ -13,27 +13,27 @@ class KnightTouristsManager
 public:
 	KnightTouristsManager();
 
-	void findClosedTours(
-		const std::size_t numClosedToursRequired, 
+	void findFullTours(
+		const std::size_t numFullToursRequired, 
 		const std::size_t numThreads);
 
 	std::vector<ChessBoard<BOARD_LENGTH>> const&
-		getClosedTours() const;
+		getFullTours() const;
 
 private:
 	void reset();
 	void createTourists(const size_t& numThreads, 
-		std::latch& closedTourLatch);
+		std::latch& fullTourLatch);
 	void createTouristThreads();
 	void joinTouristThreads();
 
 	std::vector<KnightTourist<BOARD_LENGTH>> tourists;
 	std::vector<std::thread> touristThreads;
 
-	std::mutex closedTourMutex;
+	std::mutex fullTourMutex;
 	bool stopFinding = false;
 
-	std::vector<ChessBoard<BOARD_LENGTH>> closedTourBoards;
+	std::vector<ChessBoard<BOARD_LENGTH>> fullTourBoards;
 };
 
 template<std::size_t BOARD_LENGTH>
@@ -42,19 +42,19 @@ inline KnightTouristsManager<BOARD_LENGTH>::KnightTouristsManager()
 }
 
 template<std::size_t BOARD_LENGTH>
-void KnightTouristsManager<BOARD_LENGTH>::findClosedTours(
-		const std::size_t numClosedToursRequired,
+void KnightTouristsManager<BOARD_LENGTH>::findFullTours(
+		const std::size_t numFullToursRequired,
 		const std::size_t numThreads)
 {
 	reset();
 
-	std::latch closedTourLatch{ 
-		static_cast<std::ptrdiff_t>(numClosedToursRequired) };
+	std::latch fullTourLatch{ 
+		static_cast<std::ptrdiff_t>(numFullToursRequired) };
 
-	createTourists(numThreads, closedTourLatch);
+	createTourists(numThreads, fullTourLatch);
 	createTouristThreads();
 
-	closedTourLatch.wait();
+	fullTourLatch.wait();
 	stopFinding = true;
 
 	joinTouristThreads();
@@ -62,9 +62,9 @@ void KnightTouristsManager<BOARD_LENGTH>::findClosedTours(
 
 template<std::size_t BOARD_LENGTH>
 inline std::vector<ChessBoard<BOARD_LENGTH>> const& 
-	KnightTouristsManager<BOARD_LENGTH>::getClosedTours() const
+	KnightTouristsManager<BOARD_LENGTH>::getFullTours() const
 {
-	return closedTourBoards;
+	return fullTourBoards;
 }
 
 template<std::size_t BOARD_LENGTH>
@@ -82,7 +82,7 @@ void KnightTouristsManager<BOARD_LENGTH>::createTouristThreads()
 	for (auto& tourist : tourists)
 	{
 		touristThreads.emplace_back(
-			&KnightTourist<BOARD_LENGTH>::findClosedTours, &tourist);
+			&KnightTourist<BOARD_LENGTH>::findFullTours, &tourist);
 	}
 }
 
@@ -92,17 +92,17 @@ void KnightTouristsManager<BOARD_LENGTH>::reset()
 	tourists.clear();
 	touristThreads.clear();
 	stopFinding = false;
-	closedTourBoards.clear();
+	fullTourBoards.clear();
 }
 
 template<std::size_t BOARD_LENGTH>
 void KnightTouristsManager<BOARD_LENGTH>::createTourists(
-	const size_t& numThreads, std::latch& closedTourLatch)
+	const size_t& numThreads, std::latch& fullTourLatch)
 {
 	tourists.clear();
 	for (std::size_t i = 0; i < numThreads; ++i)
 	{
-		tourists.emplace_back(closedTourLatch, closedTourBoards,
-			closedTourMutex, stopFinding);
+		tourists.emplace_back(fullTourLatch, fullTourBoards,
+			fullTourMutex, stopFinding);
 	}
 }

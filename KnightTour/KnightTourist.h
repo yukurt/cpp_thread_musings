@@ -16,13 +16,13 @@ class KnightTourist
 public:
 	KnightTourist
 	(
-		  std::latch& closedToursToFind_
-		, std::vector<ChessBoard<BOARD_LENGTH>>& closedTourBoards_
-		, std::mutex& closedTourMutex_
+		  std::latch& fullToursToFind_
+		, std::vector<ChessBoard<BOARD_LENGTH>>& fullTourBoards_
+		, std::mutex& fullTourMutex_
 		, bool const& stopFinding_
 	);
 
-	void findClosedTours();
+	void findFullTours();
 	void showTour() const;
 
 private:
@@ -51,9 +51,9 @@ private:
 			, {+1, +2}
 		} };
 
-	std::latch& closedToursLatch;
-	std::vector<ChessBoard<BOARD_LENGTH>>& closedTourBoards;
-	std::mutex& closedTourMutex;
+	std::latch& fullToursLatch;
+	std::vector<ChessBoard<BOARD_LENGTH>>& fullTourBoards;
+	std::mutex& fullTourMutex;
 	bool const& stopFinding;
 
 	void initializeRandomEngine();
@@ -87,21 +87,21 @@ void KnightTourist<BOARD_LENGTH>::initializeRandomEngine()
 template<std::size_t BOARD_LENGTH>
 KnightTourist<BOARD_LENGTH>::KnightTourist
 (
-	  std::latch& closedToursToFind_
-	, std::vector<ChessBoard<BOARD_LENGTH>>& closedTourBoards_
-	, std::mutex& closedTourMutex_
+	  std::latch& fullToursToFind_
+	, std::vector<ChessBoard<BOARD_LENGTH>>& fullTourBoards_
+	, std::mutex& fullTourMutex_
 	, bool const& stopFinding_
 )
-	: closedToursLatch(closedToursToFind_)
-	, closedTourBoards(closedTourBoards_)
-	, closedTourMutex(closedTourMutex_)
+	: fullToursLatch(fullToursToFind_)
+	, fullTourBoards(fullTourBoards_)
+	, fullTourMutex(fullTourMutex_)
 	, stopFinding(stopFinding_)
 {
 	initializeRandomEngine();
 }
 
 template<std::size_t BOARD_LENGTH>
-void KnightTourist<BOARD_LENGTH>::findClosedTours()
+void KnightTourist<BOARD_LENGTH>::findFullTours()
 {
 	while (!stopFinding)
 	{
@@ -129,9 +129,9 @@ void KnightTourist<BOARD_LENGTH>::findClosedTours()
 
 		if (visitationOrder == board.getTotalLocations() + 1)
 		{
-			std::lock_guard<std::mutex> lock(closedTourMutex);
-			closedTourBoards.push_back(std::move(board));
-			closedToursLatch.count_down();
+			std::lock_guard<std::mutex> lock(fullTourMutex);
+			fullTourBoards.push_back(std::move(board));
+			fullToursLatch.count_down();
 		}
 	}
 }

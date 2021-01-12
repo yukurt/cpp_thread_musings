@@ -11,23 +11,23 @@
 int main()
 {
 	const std::size_t BOARD_LENGTH = 8;
-	const std::size_t numClosedToursRequired = 2;
+	const std::size_t numFullToursRequired = 2;
 	const auto numThreads = 10;
 
 	KnightTouristsManager<BOARD_LENGTH> touristsManager;
-	touristsManager.findClosedTours(numClosedToursRequired, numThreads);
-	printClosedTours(touristsManager);
+	touristsManager.findFullTours(numFullToursRequired, numThreads);
+	printFullTours(touristsManager);
 
 	return 0;
 }
 
 template <std::size_t BOARD_LENGTH>
-void printClosedTours(KnightTouristsManager<BOARD_LENGTH> const& 
+void printFullTours(KnightTouristsManager<BOARD_LENGTH> const& 
 	touristsManager)
 {
-	for (auto const& closedTour : touristsManager.getClosedTours())
+	for (auto const& fullTour : touristsManager.getFullTours())
 	{
-		closedTour.dump();
+		fullTour.dump();
 		std::cout << std::endl;
 	}
 }

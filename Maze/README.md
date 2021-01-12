@@ -2,6 +2,8 @@
 
 This project solves a maze using several threads. Ten threads are used to solve an 18x40 maze.
 
+std::future and std::async are used.
+
 ## Sample Output
 ```
 ##################.#####################

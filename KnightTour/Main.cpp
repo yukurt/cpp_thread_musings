@@ -5,7 +5,8 @@
 #include <thread>
 
 #include "ChessBoard.h"
-#include "KnightTourist.h"
+#include "KnightTouristsManager.h"
+#include "Main.h"
 
 int main()
 {
@@ -13,39 +14,20 @@ int main()
 	const std::size_t numClosedToursRequired = 2;
 	const auto numThreads = 10;
 
-	std::latch closedTourLatch{numClosedToursRequired};
-	std::vector<ChessBoard<BOARD_LENGTH>> closedTourBoards;
-	std::mutex closedTourMutex;
-	bool stopFinding = false;
+	KnightTouristsManager<BOARD_LENGTH> touristsManager;
+	touristsManager.findClosedTours(numClosedToursRequired, numThreads);
+	printClosedTours(touristsManager);
 
-	std::vector<KnightTourist<BOARD_LENGTH>> tourists;
+	return 0;
+}
 
-	std::vector<std::thread> touristThreads;
-	for (int i = 0; i < numThreads; ++i)
-	{
-		tourists.emplace_back(closedTourLatch, closedTourBoards,
-			closedTourMutex, stopFinding);
-	}
-
-	for (auto& tourist : tourists)
-	{
-		touristThreads.emplace_back(
-			&KnightTourist<BOARD_LENGTH>::findClosedTours, &tourist);
-	}
-
-	closedTourLatch.wait();
-	stopFinding = true;
-
-	for (auto const& closedTour : closedTourBoards)
+template <std::size_t BOARD_LENGTH>
+void printClosedTours(KnightTouristsManager<BOARD_LENGTH> const& 
+	touristsManager)
+{
+	for (auto const& closedTour : touristsManager.getClosedTours())
 	{
 		closedTour.dump();
 		std::cout << std::endl;
 	}
-
-	for (auto& touristThread : touristThreads)
-	{
-		touristThread.join();
-	}
-
-	return 0;
 }

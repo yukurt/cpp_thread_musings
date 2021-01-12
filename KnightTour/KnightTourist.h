@@ -6,25 +6,13 @@
 #include <latch>
 #include <vector>
 
+#include "BoardLocation.h"
 #include "ChessBoard.h"
 
 template <std::size_t BOARD_LENGTH>
 class KnightTourist
 {
 public:
-	enum class KnightMove
-	{
-		  upperLeftHorizontal
-		, upperLeftVertical
-		, upperRightVertical
-		, upperRightHorizontal
-		, lowerLeftHorizontal
-		, lowerLeftVertical
-		, lowerRightVertical
-		, lowerRightHorizontal
-		, totalKnightMoves
-	};
-
 	KnightTourist
 	(
 		  std::latch& closedToursToFind_
@@ -37,6 +25,31 @@ public:
 	void showTour() const;
 
 private:
+	enum class KnightMove
+	{
+	  	  upperLeftHorizontal
+		, upperLeftVertical
+		, upperRightVertical
+		, upperRightHorizontal
+		, lowerLeftHorizontal
+		, lowerLeftVertical
+		, lowerRightVertical
+		, lowerRightHorizontal
+		, totalKnightMoves
+	};
+
+	std::array<BoardLocation, static_cast<int>(KnightMove::totalKnightMoves)>
+		knightMovesOffsets{ {
+			  {-1, -2}
+			, {-2, -1}
+			, {-2, +1}
+			, {-1, +2}
+			, {+1, -2}
+			, {+2, -1}
+			, {+2, +1}
+			, {+1, +2}
+		} };
+
 	std::latch& closedToursLatch;
 	std::vector<ChessBoard<BOARD_LENGTH>>& closedTourBoards;
 	std::mutex& closedTourMutex;
@@ -47,6 +60,7 @@ private:
 		KnightMove knightMove) const;
 	bool findNewValidLocation(BoardLocation const& startingLocation,
 		BoardLocation& newValidLocation);
+	bool triedAllKnightMoves() const;
 
 	ChessBoard<BOARD_LENGTH> board;
 
@@ -55,6 +69,9 @@ private:
 		{ 1, BOARD_LENGTH };
 	std::uniform_int_distribution<> randomKnightMoveGenerator
 		{ 0, static_cast<int>(KnightMove::totalKnightMoves) - 1 };
+
+	std::array<bool, static_cast<std::size_t>(KnightMove::totalKnightMoves)>
+		triedKnightMoves = {};
 };
 
 template<std::size_t BOARD_LENGTH>
@@ -124,9 +141,7 @@ bool KnightTourist<BOARD_LENGTH>::findNewValidLocation(
 	BoardLocation const& startingLocation,
 	BoardLocation& newValidLocation)
 {
-	std::array<bool, static_cast<std::size_t>(KnightMove::totalKnightMoves)>
-		triedKnightMoves = {};
-
+	triedKnightMoves = {};
 	bool foundNewValidLocation = false;
 
 	do {
@@ -146,14 +161,20 @@ bool KnightTourist<BOARD_LENGTH>::findNewValidLocation(
 			triedKnightMoves[static_cast<int>(knightMove)] = true;
 		}
 
-		if (std::all_of(triedKnightMoves.begin(),
-			triedKnightMoves.end(), [](auto b) { return b == true; }))
+		if (triedAllKnightMoves())
 		{
 			break;
 		}
 	} while (true);
 
 	return foundNewValidLocation;
+}
+
+template<std::size_t BOARD_LENGTH>
+inline bool KnightTourist<BOARD_LENGTH>::triedAllKnightMoves() const
+{
+	return std::all_of(triedKnightMoves.begin(),
+		triedKnightMoves.end(), [](auto b) { return b == true; });
 }
 
 template<std::size_t BOARD_LENGTH>
@@ -165,44 +186,12 @@ BoardLocation KnightTourist<BOARD_LENGTH>::getNewLocation(
 	auto startingRowIndex = startingLocation.getRowIndex();
 	auto startingColumnIndex = startingLocation.getColumnIndex();
 
-	switch (knightMove)
-	{
-	case KnightMove::upperLeftHorizontal:
-		newLocation.setRowIndex(startingRowIndex - 1);
-		newLocation.setColumnIndex(startingColumnIndex - 2);
-		break;
-	case KnightMove::upperLeftVertical:
-		newLocation.setRowIndex(startingRowIndex - 2);
-		newLocation.setColumnIndex(startingColumnIndex - 1);
-		break;
-	case KnightMove::upperRightVertical:
-		newLocation.setRowIndex(startingRowIndex - 2);
-		newLocation.setColumnIndex(startingColumnIndex + 1);
-		break;
-	case KnightMove::upperRightHorizontal:
-		newLocation.setRowIndex(startingRowIndex - 1);
-		newLocation.setColumnIndex(startingColumnIndex + 2);
-		break;
-	case KnightMove::lowerLeftHorizontal:
-		newLocation.setRowIndex(startingRowIndex + 1);
-		newLocation.setColumnIndex(startingColumnIndex - 2);
-		break;
-	case KnightMove::lowerLeftVertical :
-		newLocation.setRowIndex(startingRowIndex + 2);
-		newLocation.setColumnIndex(startingColumnIndex - 1);
-		break;
-	case KnightMove::lowerRightVertical:
-		newLocation.setRowIndex(startingRowIndex + 2);
-		newLocation.setColumnIndex(startingColumnIndex + 1);
-		break;
-	case KnightMove::lowerRightHorizontal:
-		newLocation.setRowIndex(startingRowIndex + 1);
-		newLocation.setColumnIndex(startingColumnIndex + 2);
-		break;
-	default:
-		std::cout << "ERROR: " << __FUNCTION__ << "Invalid Knight Move "
-			<< static_cast<int>(knightMove) << std::endl;
-	}
+	auto const& knightMoveOffset = knightMovesOffsets[static_cast<int>(knightMove)];
+	auto rowIndexOffset = knightMoveOffset.getRowIndex();
+	auto columnIndexOffset = knightMoveOffset.getColumnIndex();
+
+	newLocation.setRowIndex(startingRowIndex + rowIndexOffset);
+	newLocation.setColumnIndex(startingColumnIndex + columnIndexOffset);
 
 	return newLocation;
 }

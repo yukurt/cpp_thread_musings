@@ -143,12 +143,14 @@
     <ClCompile Include="BoardLocation.cpp" />
     <ClCompile Include="ChessBoard.cpp" />
     <ClCompile Include="KnightTourist.cpp" />
+    <ClCompile Include="KnightTouristsManager.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoardLocation.h" />
     <ClInclude Include="ChessBoard.h" />
     <ClInclude Include="KnightTourist.h" />
+    <ClInclude Include="KnightTouristsManager.h" />
     <ClInclude Include="Main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

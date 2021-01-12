@@ -12,6 +12,7 @@ public:
 	Index getColumnIndex() const;
 	void setRowIndex(Index rowIndex_);
 	void setColumnIndex(Index columnIndex_);
+	BoardLocation& operator+=(BoardLocation const& rhs);
 
 private:
 	Index rowIndex = 0;

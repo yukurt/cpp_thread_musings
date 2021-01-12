@@ -28,3 +28,10 @@ void BoardLocation::setColumnIndex(BoardLocation::Index columnIndex_)
 {
 	columnIndex = columnIndex_;
 }
+
+BoardLocation& BoardLocation::operator+=(BoardLocation const& rhs)
+{
+	setRowIndex(getRowIndex() + rhs.getRowIndex());
+	setColumnIndex(getColumnIndex() + rhs.getColumnIndex());
+	return *this;
+}

@@ -1,6 +1,8 @@
 # Knight's Tour
 This project solves the [Knight's Tour](https://en.wikipedia.org/wiki/Knight%27s_tour) using multiple threads.
 
+std::latch is used.
+
 ## Sample Output
 
 ```

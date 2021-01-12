@@ -23,6 +23,8 @@ public:
 	);
 
 	void findFullTours();
+	void checkIfFullTour();
+	void tourBoard();
 	void showTour() const;
 
 private:
@@ -51,16 +53,19 @@ private:
 			, {+1, +2}
 		} };
 
-	std::latch& fullToursLatch;
-	std::vector<ChessBoard<BOARD_LENGTH>>& fullTourBoards;
-	std::mutex& fullTourMutex;
-	bool const& stopFinding;
-
+private:
 	void initializeRandomEngine();
 	BoardLocation getNewLocation(BoardLocation const& startingLocation,
 		KnightMove knightMove) const;
 	bool findNewValidLocation(BoardLocation const& startingLocation,
 		BoardLocation& newValidLocation);
+	BoardLocation generateRandomBoardLocation();
+
+private:
+	std::latch& fullToursLatch;
+	std::vector<ChessBoard<BOARD_LENGTH>>& fullTourBoards;
+	std::mutex& fullTourMutex;
+	bool const& stopFinding;
 
 	ChessBoard<BOARD_LENGTH> board;
 
@@ -72,6 +77,8 @@ private:
 
 	std::bitset<static_cast<std::size_t>(KnightMove::totalKnightMoves)>
 		triedKnightMoves = {};
+
+	std::size_t visitationOrder = 1;
 };
 
 template<std::size_t BOARD_LENGTH>
@@ -106,34 +113,49 @@ void KnightTourist<BOARD_LENGTH>::findFullTours()
 	while (!stopFinding)
 	{
 		board.clear();
-
-		BoardLocation startingLocation(
-			randomBoardIndexGenerator(randomEngine),
-			randomBoardIndexGenerator(randomEngine));
-		board.visitLocation(startingLocation, 1);
-
-		auto currentLocation = startingLocation;
-		std::size_t visitationOrder;
-		for (visitationOrder = 2;
-			visitationOrder <= board.getTotalLocations(); ++visitationOrder)
-		{
-			BoardLocation newValidLocation;
-			if (!findNewValidLocation(currentLocation, newValidLocation))
-			{
-				break;
-			}
-
-			currentLocation = newValidLocation;
-			board.visitLocation(newValidLocation, visitationOrder);
-		}
-
-		if (visitationOrder == board.getTotalLocations() + 1)
-		{
-			std::lock_guard<std::mutex> lock(fullTourMutex);
-			fullTourBoards.push_back(std::move(board));
-			fullToursLatch.count_down();
-		}
+		tourBoard();
+		checkIfFullTour();
 	}
+}
+
+template<std::size_t BOARD_LENGTH>
+void KnightTourist<BOARD_LENGTH>::checkIfFullTour()
+{
+	if (visitationOrder == board.getTotalLocations() + 1)
+	{
+		std::lock_guard<std::mutex> lock(fullTourMutex);
+		fullTourBoards.push_back(std::move(board));
+		fullToursLatch.count_down();
+	}
+}
+
+template<std::size_t BOARD_LENGTH>
+void KnightTourist<BOARD_LENGTH>::tourBoard()
+{
+	BoardLocation startingLocation = generateRandomBoardLocation();
+	board.visitLocation(startingLocation, 1);
+
+	auto currentLocation = startingLocation;
+	for (visitationOrder = 2;
+		visitationOrder <= board.getTotalLocations(); ++visitationOrder)
+	{
+		BoardLocation newValidLocation;
+		if (!findNewValidLocation(currentLocation, newValidLocation))
+		{
+			break;
+		}
+
+		currentLocation = newValidLocation;
+		board.visitLocation(newValidLocation, visitationOrder);
+	}
+}
+
+template<std::size_t BOARD_LENGTH>
+BoardLocation KnightTourist<BOARD_LENGTH>::generateRandomBoardLocation()
+{
+	return BoardLocation(
+		randomBoardIndexGenerator(randomEngine),
+		randomBoardIndexGenerator(randomEngine));
 }
 
 template<std::size_t BOARD_LENGTH>

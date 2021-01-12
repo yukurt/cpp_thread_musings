@@ -5,6 +5,7 @@
 #include <mutex>
 #include <latch>
 #include <vector>
+#include <bitset>
 
 #include "BoardLocation.h"
 #include "ChessBoard.h"
@@ -60,7 +61,6 @@ private:
 		KnightMove knightMove) const;
 	bool findNewValidLocation(BoardLocation const& startingLocation,
 		BoardLocation& newValidLocation);
-	bool triedAllKnightMoves() const;
 
 	ChessBoard<BOARD_LENGTH> board;
 
@@ -70,7 +70,7 @@ private:
 	std::uniform_int_distribution<> randomKnightMoveGenerator
 		{ 0, static_cast<int>(KnightMove::totalKnightMoves) - 1 };
 
-	std::array<bool, static_cast<std::size_t>(KnightMove::totalKnightMoves)>
+	std::bitset<static_cast<std::size_t>(KnightMove::totalKnightMoves)>
 		triedKnightMoves = {};
 };
 
@@ -141,7 +141,7 @@ bool KnightTourist<BOARD_LENGTH>::findNewValidLocation(
 	BoardLocation const& startingLocation,
 	BoardLocation& newValidLocation)
 {
-	triedKnightMoves = {};
+	triedKnightMoves.reset();
 	bool foundNewValidLocation = false;
 
 	do {
@@ -158,23 +158,16 @@ bool KnightTourist<BOARD_LENGTH>::findNewValidLocation(
 		}
 		else
 		{
-			triedKnightMoves[static_cast<int>(knightMove)] = true;
+			triedKnightMoves.set(static_cast<int>(knightMove));
 		}
 
-		if (triedAllKnightMoves())
+		if (triedKnightMoves.all())
 		{
 			break;
 		}
 	} while (true);
 
 	return foundNewValidLocation;
-}
-
-template<std::size_t BOARD_LENGTH>
-inline bool KnightTourist<BOARD_LENGTH>::triedAllKnightMoves() const
-{
-	return std::all_of(triedKnightMoves.begin(),
-		triedKnightMoves.end(), [](auto b) { return b == true; });
 }
 
 template<std::size_t BOARD_LENGTH>

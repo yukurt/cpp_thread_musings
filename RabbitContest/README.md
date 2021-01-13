@@ -2,9 +2,9 @@
 
 A rabbit race is simulated in this project. Eight rabbits compete against each other. Each rabbit repeats the cycle of hopping a random number of steps and napping a random amount of time, until it completes the race track. A hop can be in the forward or backward direction. The first rabbit to finish the race track is declared the winner, and the race is stopped. Each rabbit is simulated by a separate thread.
 
-An additional thread is used for monitoring the progress of the rabbits. The monitor reports the progress of the rabbits every 5 seconds.
+An additional thread is used for monitoring the progress of the rabbits. The monitor reports the progress of the rabbits every 5 seconds. Two races are simulated.
 
-Two races are simulated.
+std::condition_variable is used.
 
 ## Sample Output
 
